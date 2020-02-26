@@ -1,17 +1,16 @@
 ---
 title: "team.Rmd (ds202_lab3)"
 output: html_document
-author: "Jaydon Cobb, github: JaydonLCobb"
+author: "Anthony Song, github: aasong113, Jaydon Cobb, github: JaydonLCobb"
 ---
 
 ```{r}
 # importing libraries
 library(ggplot2)
-library(ggmosaic)
-library(ggpubr)
+library(dplyr)
 library(readxl)
 # setting dat and column names
-dat <- readxl::read_xls('/Users/jaydoncobb/Desktop/DS202/ds202_lab3/GSS.xls')
+dat <- readxl::read_xls('GSS.xls')
 names(dat) <- c("year", "ID_NUM", "marital_status", "sex", "political_affil", "happiness", "ballot_used")
 print(dat)
 ```
@@ -25,7 +24,7 @@ pltNew <- plt + geom_bar()
 pltNew + theme(axis.text.x=element_text(angle=90, hjust=1))
 ```
 
-# From my observations regarding the above graph, it appears that the majority of people that are happy (pretty/very) are married. Contrary to that, people in situations where they are seperated/widowed seem to have the smallest amounts of happy persons.
+ From my observations regarding the above graph, it appears that the majority of people that are happy (pretty/very) are married. Contrary to that, people in situations where they are seperated/widowed seem to have the smallest amounts of happy persons.
 
 
 # Question 2 
@@ -35,17 +34,54 @@ plt <- ggplot(dat,aes(x=happiness,fill=sex))+geom_bar()+facet_grid(~marital_stat
 plt + theme(axis.text.x=element_text(angle=90, hjust=1)) # rotating the x-axis labels 90 degrees
 ```
 
-# We can see here that their are definitely similarities amongst both sexes. Married females seem to have responded in greater numbers than their male counterparts regarding happiness and we can also see that when one partner is widowed, females seem to be happier. 
+ We can see here that their are definitely similarities amongst both sexes. Married females seem to have responded in greater numbers than their male counterparts regarding happiness and we can also see that when one partner is widowed, females seem to be happier. 
 
+#Question 3
+How does the happiness of a respondent relate to the political party affiliation?
+In the initial cleaning of the data I removed, "Don't know" and values that were NA. 
+I chose to use a fractional stacked bar chart so I could normalize the values to a percentage of the total. 
+From this we see that the Strong republicans, not independent republicans, and Ind. near republicans displayed the most happiness. Being happy consisted of Pretty happy and Very happy. This can be confirmed by the summary table that was created by averaging the happiness when they were assigned a numeric value. 
+```{r}
+dat3<-dat[!(dat$political_affil=="Don't know"),]
+
+
+dat3 <- dat3[!(dat$happiness=="Not applicable"),]
+dat3 <- dat3[!is.na(dat3$`happiness`), ]
+dat3 <- dat3[!is.na(dat3$`political_affil`), ]
+
+plt3 <- ggplot(data = dat3, aes(x=political_affil, fill=happiness)) + geom_bar(position="fill") + xlab("Political Affiliation") + labs(fill = "Happiness") + ylab("Fraction")
+plt3+ theme(axis.text.x=element_text(angle=90, hjust=1))
+
+dat3 %>%
+	mutate(quantitative_happiness = case_when(happiness == 'Very happy' ~ 3,
+	                                          happiness == 'Pretty happy' ~ 2,
+	                                          happiness == 'Not too happy' ~ 1,
+	                                          TRUE ~ 0)) %>%
+  group_by(political_affil) %>%
+	summarise(avg_happiness = mean(quantitative_happiness))
+
+```
+#Question 4
+
+
+
+# 4.1) 
+How does the year affect the marital status?
+
+From this fractional stacked bar chart, we can draw the conclusion that the fraction of people married decreases, and the fraction of people divorced increases. This can be interpreted as the change from social values and norms that are developed and integrated into western culture. 
 
 ```{r}
-plt <- ggplot(data=dat,  aes(x=happiness, fill=political_affil)) # assigning graph
-pltNew <- plt + geom_bar() # assigning new graph
+plt <- ggplot(data=dat,  aes(x=year, fill=marital_status)) # assigning graph
+pltNew <- plt + geom_bar(position="fill") # assigning new graph
 pltNew + theme(axis.text.x=element_text(angle=90, hjust=1)) # rotating the x-axis labels 90 degrees
+
 ```
 
-# This barchart represents happiness by political affiliation. We can see here that the largest number of happy persons (pretty/very) belongs to people that don't hold strong ties to either party (not str democrat/republican). However, participants that don't hold strong democratic ties make up the largest amount of "not too happy" persons. We can assume that this is because they are the majority in this data set. We also can note that people that hold strong democratic values actually come pretty close in regards to "non str republican" persons, whereas strong republicans report lower numbers across the board.
+# 4.2) 
 
+How does is Political Affiliation affected by the year?
+
+This graph represents the growth of political affiliates per year. I found this interesting because we're able to gauge growth in supporters for each party/non-party using this. There is a strong spike during the dotcom era (early 2000's) for almost every party/non-party. Democratic affiliates seem to maintain a pretty constant flow of support over the years and republicans seem to experience a pull/push in supporters from the early nineties to 2000 and then again to current day.
 
 ```{r}
 plt <- ggplot(data=dat,  aes(x=year, fill=political_affil)) # assigning graph
@@ -53,4 +89,35 @@ pltNew <- plt + geom_bar() # assigning new graph
 pltNew + theme(axis.text.x=element_text(angle=90, hjust=1)) # rotating the x-axis labels 90 degrees
 ```
 
-# This graph represents the growth of political affiliates per year. I found this interesting because we're able to gauge growth in supporters for each party/non-party using this. There is a strong spike during the dotcom era (early 2000's) for almost every party/non-party. Democratic affiliates seem to maintain a pretty constant flow of support over the years and republicans seem to experience a pull/push in supporters from the early nineties to 2000 and then again to current day.
+
+# 4.3) 
+How does sex affect political affiliation? Is there a trend between male and female, and their respective political affiliations?
+
+From this fractional bar chart we can see that Not strong democrats and Strong democrats are female dominated. 
+On the other hand, the other party appears to be male dominated. For the most part the rest of the political affiliations appear to have near equal sex distrubtion. 
+
+```{r}
+dat4 <- dat[!is.na(dat$`sex`), ]
+plt4 <- ggplot(data = dat4, aes(x=political_affil, fill=sex)) + geom_bar(position="fill")
+plt4+theme(axis.text.x=element_text(angle=90, hjust=1))+xlab("Political Affiliation") # Rotate 90 degrees
+```
+
+# 4.4) 
+How does the marital status affect the political affiliation?
+
+From this fractional stacked bar graph we can see that republican affiliation has the largest fraction of married couples. While democratic affiliation has the largest fraction of divorced, never married, separated, and widowed. This means that some viewpoint of the democratic supporters causes individuals to deviate from the traditional marital roles. 
+
+```{r}
+dat4 <- dat[!is.na(dat$`happiness`), ]
+dat4 <- dat4[!is.na(dat4$`political_affil`), ]
+plt <- ggplot(data=dat4,  aes(x=marital_status, fill=political_affil)) # assigning graph
+pltNew <- plt + geom_bar(position="fill") # assigning new graph
+pltNew + theme(axis.text.x=element_text(angle=90, hjust=1))+xlab("Marital Status") + labs(fill = "Political Affiliation") + ylab("Fraction")
+# rotating the x-axis labels 90 degrees
+```
+
+
+
+
+
+
