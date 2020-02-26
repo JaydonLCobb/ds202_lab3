@@ -1,0 +1,56 @@
+---
+title: "team.Rmd (ds202_lab3)"
+output: html_document
+author: "Jaydon Cobb, github: JaydonLCobb"
+---
+
+```{r}
+# importing libraries
+library(ggplot2)
+library(ggmosaic)
+library(ggpubr)
+library(readxl)
+# setting dat and column names
+dat <- readxl::read_xls('/Users/jaydoncobb/Desktop/DS202/ds202_lab3/GSS.xls')
+names(dat) <- c("year", "ID_NUM", "marital_status", "sex", "political_affil", "happiness", "ballot_used")
+print(dat)
+```
+
+# Question 1
+
+```{r}
+plt <- ggplot(data=dat,  aes(x=happiness, fill=marital_status)) # assigning graph
+plt + geom_bar() # makes the height of the bar proportional to the number of cases in each group
+pltNew <- plt + geom_bar() 
+pltNew + theme(axis.text.x=element_text(angle=90, hjust=1))
+```
+
+# From my observations regarding the above graph, it appears that the majority of people that are happy (pretty/very) are married. Contrary to that, people in situations where they are seperated/widowed seem to have the smallest amounts of happy persons.
+
+
+# Question 2 
+
+```{r}
+plt <- ggplot(dat,aes(x=happiness,fill=sex))+geom_bar()+facet_grid(~marital_status) # assigning graph
+plt + theme(axis.text.x=element_text(angle=90, hjust=1)) # rotating the x-axis labels 90 degrees
+```
+
+# We can see here that their are definitely similarities amongst both sexes. Married females seem to have responded in greater numbers than their male counterparts regarding happiness and we can also see that when one partner is widowed, females seem to be happier. 
+
+
+```{r}
+plt <- ggplot(data=dat,  aes(x=happiness, fill=political_affil)) # assigning graph
+pltNew <- plt + geom_bar() # assigning new graph
+pltNew + theme(axis.text.x=element_text(angle=90, hjust=1)) # rotating the x-axis labels 90 degrees
+```
+
+# This barchart represents happiness by political affiliation. We can see here that the largest number of happy persons (pretty/very) belongs to people that don't hold strong ties to either party (not str democrat/republican). However, participants that don't hold strong democratic ties make up the largest amount of "not too happy" persons. We can assume that this is because they are the majority in this data set. We also can note that people that hold strong democratic values actually come pretty close in regards to "non str republican" persons, whereas strong republicans report lower numbers across the board.
+
+
+```{r}
+plt <- ggplot(data=dat,  aes(x=year, fill=political_affil)) # assigning graph
+pltNew <- plt + geom_bar() # assigning new graph
+pltNew + theme(axis.text.x=element_text(angle=90, hjust=1)) # rotating the x-axis labels 90 degrees
+```
+
+# This graph represents the growth of political affiliates per year. I found this interesting because we're able to gauge growth in supporters for each party/non-party using this. There is a strong spike during the dotcom era (early 2000's) for almost every party/non-party. Democratic affiliates seem to maintain a pretty constant flow of support over the years and republicans seem to experience a pull/push in supporters from the early nineties to 2000 and then again to current day.
